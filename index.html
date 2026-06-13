@@ -1922,14 +1922,19 @@ body {
   };
 
   // ===================== 启动 =====================
-  loadCustomSchools();
-  loadHistory();
-  renderFilters();
-  updateFavBar();
-  renderSchools();
-  renderHistory();
-  updateCompareUI();
-  updateActiveFilters();
+  try {
+    loadCustomSchools();
+    loadHistory();
+    renderFilters();
+    updateFavBar();
+    renderSchools();
+    renderHistory();
+    updateCompareUI();
+    updateActiveFilters();
+  } catch(e) {
+    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red)">页面加载出错，请刷新重试</div>';
+    console.error(e);
+  }
   console.log('🎓 择校助手已就绪');
   console.log('  - 管理员密码：' + DEFAULT_ADMIN_PWD);
 })();
