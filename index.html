@@ -1922,6 +1922,14 @@ body {
   };
 
   // ===================== 启动 =====================
+  // 超时保底：2秒后如果还没渲染，强制显示
+  setTimeout(function() {
+    var grid = document.getElementById('schoolGrid');
+    if (grid && grid.children.length === 0 && document.getElementById('emptyState').style.display === 'none') {
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">⏳ 加载中…如长时间未显示请刷新页面</div>';
+    }
+  }, 2000);
+
   try {
     loadCustomSchools();
     loadHistory();
@@ -1932,7 +1940,7 @@ body {
     updateCompareUI();
     updateActiveFilters();
   } catch(e) {
-    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red)">页面加载出错，请刷新重试</div>';
+    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);font-size:14px">加载异常，请截图反馈并刷新重试</div>';
     console.error(e);
   }
   console.log('🎓 择校助手已就绪');
