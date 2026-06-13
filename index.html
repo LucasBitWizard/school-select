@@ -1085,8 +1085,8 @@ body {
     document.querySelectorAll('[data-budget]').forEach(b =>
       b.addEventListener('click', () => { activeBudget = budgets[parseInt(b.dataset.budget)]; renderFilters(); showSkeleton(); setTimeout(function(){renderSchools();scrollToResults()},150); }));
 
-  // 计算学费人民币
-  function calcRMB(fee) {
+  // 计算学费人民币（全局函数，必须在所有render之前定义）
+  window.calcRMB = function(fee) {
     if (!fee || fee === '面议' || fee === '免学费') return 0;
     var num = parseFloat(fee.replace(/[^0-9.]/g,'')) || 0;
     var cur = fee.match(/[$£€]|A\$|C\$|S\$|₩|CHF/);
@@ -1096,8 +1096,8 @@ body {
     return num * rate;
   }
 
-  // 倒计时
-  function deadlineCountdown(deadline) {
+  // 倒计时（全局函数）
+  window.deadlineCountdown = function(deadline) {
     if (!deadline || deadline === '滚动招生' || deadline === '随时报名') return {text:'滚动招生',urgent:false};
     var now = new Date();
     var m = deadline.match(/(\d+)月(\d+)日/);
