@@ -1293,6 +1293,14 @@ body {
     try { customSchools = JSON.parse(localStorage.getItem(CUSTOM_SCHOOLS_KEY)) || []; }
     catch(_) { customSchools = []; }
   }
+  function safeLocalStorage(key, fallback) {
+    try { var v = localStorage.getItem(key); return v !== null ? v : fallback; }
+    catch(_) { return fallback; }
+  }
+  function safeJSONParse(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch(_) { return fallback; }
+  }
   function saveCustomSchools() {
     localStorage.setItem(CUSTOM_SCHOOLS_KEY, JSON.stringify(customSchools));
   }
@@ -1922,13 +1930,19 @@ body {
   };
 
   // ===================== 启动 =====================
-  // 超时保底：2秒后如果还没渲染，强制显示
+  // 确保学校数据存在
+  if (typeof schools === 'undefined' || schools.length === 0) {
+    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red)">数据加载失败，请刷新</div>';
+    throw new Error('Schools data missing');
+  }
+
+  // 超时保底
   setTimeout(function() {
     var grid = document.getElementById('schoolGrid');
     if (grid && grid.children.length === 0 && document.getElementById('emptyState').style.display === 'none') {
-      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">⏳ 加载中…如长时间未显示请刷新页面</div>';
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);font-size:14px">⏳ 正在加载 80 所学校…<br><span style="font-size:12px;color:var(--text3)">如1分钟后仍无显示，请截图反馈</span></div>';
     }
-  }, 2000);
+  }, 2500);
 
   try {
     loadCustomSchools();
@@ -1939,11 +1953,18 @@ body {
     renderHistory();
     updateCompareUI();
     updateActiveFilters();
+    // 二次确认：500ms后检查是否渲染成功
+    setTimeout(function() {
+      var grid = document.getElementById('schoolGrid');
+      if (grid && grid.children.length === 0) {
+        grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">渲染失败，请<a href="javascript:location.reload()" style="color:var(--primary)">点击刷新</a></div>';
+      }
+    }, 500);
   } catch(e) {
-    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);font-size:14px">加载异常，请截图反馈并刷新重试</div>';
+    document.getElementById('schoolGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--red);font-size:14px">加载异常：' + e.message + '<br>请刷新重试</div>';
     console.error(e);
   }
-  console.log('🎓 择校助手已就绪');
+  console.log('择校助手已就绪, 学校数:', schools.length);
   console.log('  - 管理员密码：' + DEFAULT_ADMIN_PWD);
 })();
 </script>
